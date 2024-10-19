@@ -32,6 +32,7 @@ yarn-error.log*
 # vercel
 .vercel
 
+
 # typescript
 *.tsbuildinfo
 next-env.d.ts
@@ -41,3 +42,9 @@ postgres_data/
 
 # pgAdmin
 pgadmin_data/
+
+# Ignore all directories inside prisma/migrations
+prisma/migrations/*/
+
+# Allow files in prisma/migrations
+!prisma/migrations/*.*
