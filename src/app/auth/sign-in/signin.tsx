@@ -36,13 +36,13 @@ export default function SignInPage() {
           </button>
         </form>
         <div className="mt-4">
-        <button onClick={() => handleGoogleSignIn()} className="flex items-center justify-center w-full bg-white text-black p-2 rounded-md border hover:bg-gray-100 mb-2">
-            <FcGoogle className="bg-white w-5 h-5 mr-2" />
-            Sign in with Google
-        </button>
-          <button onClick={() => {}} className="w-full bg-black text-white p-2 rounded-md hover:bg-gray-800">
-            Sign in with Apple
-          </button>
+            <button onClick={() => handleGoogleSignIn()} className="flex items-center justify-center w-full bg-white text-black p-2 rounded-md border hover:bg-gray-100 mb-2">
+                <FcGoogle className="bg-white w-5 h-5 mr-2" />
+                Sign in with Google
+            </button>
+            <button onClick={() => {}} className="w-full bg-black text-white p-2 rounded-md hover:bg-gray-800">
+                Sign in with Apple
+            </button>
         </div>
       </div>
     </div>
