@@ -7,7 +7,7 @@ export default function SignInPage() {
     return (
     <div className="min-h-screen flex items-center justify-center bg-gray-900">
       <div className="bg-white p-8 rounded-lg shadow-md w-96">
-        <h2 className="text-2xl font-bold mb-4 text-center">Sign In</h2>
+        <h2 className="text-2xl font-bold mb-4 text-center text-black">Sign In</h2>
         <form onSubmit={() => {}} className="space-y-4">
           <div>
             <label htmlFor="email" className="block text-sm font-medium text-gray-700">Email</label>

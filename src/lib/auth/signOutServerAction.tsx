@@ -1,8 +1,10 @@
 "use server";
 
+import { signOut } from "@/lib/auth/authConfig";
+
 export async function handleSignOut() {
   try {
-    await console.log("Signed out");
+    await signOut();
   } catch (error) {
     throw error;
   }
