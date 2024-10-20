@@ -6,25 +6,31 @@ import { useState, useTransition } from "react";
 import { FcGoogle } from "react-icons/fc";
 
 export default function SignInPage() {
+
   const [isPending, startTransition] = useTransition();
   const [isPendingLink, startTransitionLink] = useTransition();
   
   const [formData, setFormData] = useState({ email: "", password: "" });
-  const [emailLink, setEmailLink] = useState({email: "" as string});
+  const [emailLink, setEmailLink] = useState({ email: "" });
+  const [isSubmittingLink, setIsSubmittingLink] = useState(false); // Added local state for form submission status
 
   const handleSubmitEmail = (event: React.FormEvent) => {
-    event.preventDefault(); // Prevents the form from submitting and reloading the page, allowing us to handle the submission in TypeScript.
+    event.preventDefault(); // Prevents the form from submitting and reloading the page
+    setIsSubmittingLink(true); // Set the state to disable input and button
+
     try {
-      startTransition(async () => {
+      startTransitionLink(async () => {
         await handleEmailSignIn(emailLink.email);
+        setIsSubmittingLink(false); // Re-enable input and button after submission completes
       });
     } catch (error) {
       console.error(error);
+      setIsSubmittingLink(false); // Ensure to re-enable on error
     }
   };
 
   const handleSubmit = (event: React.FormEvent) => {
-    event.preventDefault(); // Prevents the form from submitting and reloading the page, allowing us to handle the submission in TypeScript.
+    event.preventDefault();
     try {
       startTransition(async () => {
         await handleEmailSignIn(formData.email);
@@ -87,14 +93,18 @@ export default function SignInPage() {
               maxLength={320}
               placeholder="Email address"
               onChange={(event: React.ChangeEvent<HTMLInputElement>) =>
-                setEmailLink({ ...formData, email: event.target.value })
+                setEmailLink({ email: event.target.value })
               }
-              disabled={isPendingLink}
+              disabled={isSubmittingLink} // Disable input when form is submitting
               required
             />
           </div>
-          <button type="submit" className="w-full bg-blue-500 text-white p-2 rounded-md hover:bg-blue-600">
-            Sign in with your email
+          <button 
+            type="submit" 
+            className={`w-full p-2 rounded-md ${isSubmittingLink ? 'bg-gray-500' : 'bg-blue-500 hover:bg-blue-600'} text-white`}
+            disabled={isSubmittingLink} // Disable button when form is submitting
+          >
+            {isSubmittingLink ? 'Emailing the link...' : 'Sign in with your email'}
           </button>
         </form>
 
