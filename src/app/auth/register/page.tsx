@@ -4,6 +4,7 @@ import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { z } from 'zod'
 
+// Define the schema for form validation using Zod
 const registerSchema = z.object({
   username: z.string().min(1, "Username is required"),
   firstName: z.string().min(1, "First name is required"),
@@ -13,6 +14,7 @@ const registerSchema = z.object({
 })
 
 export default function RegisterPage() {
+  // State to hold form data
   const [formData, setFormData] = useState({
     username: '',
     firstName: '',
@@ -20,9 +22,14 @@ export default function RegisterPage() {
     email: '',
     password: '',
   })
+
+  // State to hold validation errors
   const [errors, setErrors] = useState<Record<string, string>>({})
+
+  // Hook to handle navigation
   const router = useRouter()
 
+  // Handle input changes
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target
     setFormData(prevData => ({
@@ -31,13 +38,17 @@ export default function RegisterPage() {
     }))
   }
 
+  // Handle form submission
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
+    // Clear any existing errors
     setErrors({})
 
     try {
+      // Validate form data against the schema
       registerSchema.parse(formData)
       
+      // Send registration request to the server
       const response = await fetch('/api/register', {
         method: 'POST',
         headers: {
@@ -48,10 +59,16 @@ export default function RegisterPage() {
 
       const data = await response.json()
 
+      // Handle server response
       if (!response.ok) {
         if (data.error === 'Username already taken') {
+          // Specific error for taken username
           setErrors({ username: 'Username already taken' })
+        } else if (data.error === 'Email already in use') {
+          // Specific error for taken email
+          setErrors({ email: 'Email already in use' })
         } else if (Array.isArray(data.error)) {
+          // Handle array of errors from server
           const newErrors: Record<string, string> = {}
           data.error.forEach((err: z.ZodIssue) => {
             if (err.path) {
@@ -60,6 +77,7 @@ export default function RegisterPage() {
           })
           setErrors(newErrors)
         } else {
+          // Generic error message
           setErrors({ general: 'An error occurred during registration' })
         }
         return
@@ -68,6 +86,7 @@ export default function RegisterPage() {
       // Registration successful, redirect to home page
       router.push('/')
     } catch (error) {
+      // Handle Zod validation errors
       if (error instanceof z.ZodError) {
         const newErrors: Record<string, string> = {}
         error.errors.forEach((err) => {
@@ -77,6 +96,7 @@ export default function RegisterPage() {
         })
         setErrors(newErrors)
       } else {
+        // Handle unexpected errors
         setErrors({ general: 'An unexpected error occurred' })
       }
     }
@@ -93,6 +113,7 @@ export default function RegisterPage() {
       <div className="mt-8 sm:mx-auto sm:w-full sm:max-w-md text-black">
         <div className="bg-white py-8 px-4 shadow sm:rounded-lg sm:px-10">
           <form className="space-y-6" onSubmit={handleSubmit}>
+            {/* Display general errors */}
             {errors.general && (
               <div className="rounded-md bg-red-50 p-4">
                 <div className="flex">
@@ -102,6 +123,8 @@ export default function RegisterPage() {
                 </div>
               </div>
             )}
+
+            {/* Username field */}
             <div>
               <label htmlFor="username" className="block text-sm font-medium text-gray-700">
                 Username
@@ -120,6 +143,7 @@ export default function RegisterPage() {
               </div>
             </div>
 
+            {/* First name field */}
             <div>
               <label htmlFor="firstName" className="block text-sm font-medium text-gray-700">
                 First name
@@ -138,6 +162,7 @@ export default function RegisterPage() {
               </div>
             </div>
 
+            {/* Last name field */}
             <div>
               <label htmlFor="lastName" className="block text-sm font-medium text-gray-700">
                 Last name
@@ -156,6 +181,7 @@ export default function RegisterPage() {
               </div>
             </div>
 
+            {/* Email field */}
             <div>
               <label htmlFor="email" className="block text-sm font-medium text-gray-700">
                 Email address
@@ -175,6 +201,7 @@ export default function RegisterPage() {
               </div>
             </div>
 
+            {/* Password field */}
             <div>
               <label htmlFor="password" className="block text-sm font-medium text-gray-700">
                 Password
@@ -193,6 +220,7 @@ export default function RegisterPage() {
               </div>
             </div>
 
+            {/* Submit button */}
             <div>
               <button
                 type="submit"

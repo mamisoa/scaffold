@@ -17,12 +17,21 @@ export async function POST(req: Request) {
     const { username, firstName, lastName, email, password } = registerSchema.parse(body)
 
     // Check if username is already taken
-    const existingUser = await prisma.usersLocal.findUnique({
+    const existingUsername = await prisma.usersLocal.findUnique({
       where: { username },
     })
 
-    if (existingUser) {
+    if (existingUsername) {
       return NextResponse.json({ error: 'Username already taken' }, { status: 400 })
+    }
+
+    // Check if email is already taken
+    const existingEmail = await prisma.usersLocal.findUnique({
+      where: { email },
+    })
+
+    if (existingEmail) {
+      return NextResponse.json({ error: 'Email already in use' }, { status: 400 })
     }
 
     // Hash the password
