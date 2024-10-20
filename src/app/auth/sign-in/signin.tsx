@@ -7,7 +7,21 @@ import { FcGoogle } from "react-icons/fc";
 
 export default function SignInPage() {
   const [isPending, startTransition] = useTransition();
+  const [isPendingLink, startTransitionLink] = useTransition();
+  
   const [formData, setFormData] = useState({ email: "", password: "" });
+  const [emailLink, setEmailLink] = useState({email: "" as string});
+
+  const handleSubmitEmail = (event: React.FormEvent) => {
+    event.preventDefault(); // Prevents the form from submitting and reloading the page, allowing us to handle the submission in TypeScript.
+    try {
+      startTransition(async () => {
+        await handleEmailSignIn(emailLink.email);
+      });
+    } catch (error) {
+      console.error(error);
+    }
+  };
 
   const handleSubmit = (event: React.FormEvent) => {
     event.preventDefault(); // Prevents the form from submitting and reloading the page, allowing us to handle the submission in TypeScript.
@@ -54,21 +68,28 @@ export default function SignInPage() {
           </button>
         </form>
 
+        {/* Separator */}
+        <div className="flex items-center justify-center mt-4 mb-4">
+          <hr className="w-full border-t border-gray-300" />
+          <span className="px-2 text-sm text-gray-500">or</span>
+          <hr className="w-full border-t border-gray-300" />
+        </div>
+
         {/* Email Link Sign In Form */}
-        <form onSubmit={handleSubmit} className="my-2 space-y-4">
+        <form onSubmit={handleSubmitEmail} className="my-2 space-y-4">
           <div>
             <label htmlFor="email-link" className="block text-sm font-medium text-gray-700">Email</label>
             <input
+              className="text-black mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2"
               type="email"
               id="email-link"
-              value={formData.email}
+              value={emailLink.email}
               maxLength={320}
               placeholder="Email address"
               onChange={(event: React.ChangeEvent<HTMLInputElement>) =>
-                setFormData({ ...formData, email: event.target.value })
+                setEmailLink({ ...formData, email: event.target.value })
               }
-              disabled={isPending}
-              className="text-black mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2"
+              disabled={isPendingLink}
               required
             />
           </div>
@@ -76,6 +97,13 @@ export default function SignInPage() {
             Sign in with your email
           </button>
         </form>
+
+        {/* Separator */}
+        <div className="flex items-center justify-center mt-4 mb-4">
+          <hr className="w-full border-t border-gray-300" />
+          <span className="px-2 text-sm text-gray-500">or</span>
+          <hr className="w-full border-t border-gray-300" />
+        </div>
 
         <div className="mt-4">
           <button onClick={() => handleGoogleSignIn()} className="flex items-center justify-center w-full bg-white text-black p-2 rounded-md border hover:bg-gray-100 mb-2">
