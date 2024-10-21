@@ -1,7 +1,7 @@
 'use client';
-
 import { handleEmailSignIn } from "@/lib/auth/emailSignInServerAction";
 import { handleGoogleSignIn } from "@/lib/auth/googleSignInServerAction";
+import { handleUsernameSignIn } from "@/lib/auth/usernameSignInServerAction";
 import { useState, useTransition } from "react";
 import { FcGoogle } from "react-icons/fc";
 
@@ -10,7 +10,7 @@ export default function SignInPage() {
   const [isPending, startTransition] = useTransition();
   const [isPendingLink, startTransitionLink] = useTransition();
   
-  const [formData, setFormData] = useState({ email: "", password: "" });
+  const [formData, setFormData] = useState({ username: "", password: "" });
   const [emailLink, setEmailLink] = useState({ email: "" });
   const [isSubmittingLink, setIsSubmittingLink] = useState(false); // Added local state for form submission status
 
@@ -29,14 +29,18 @@ export default function SignInPage() {
     }
   };
 
-  const handleSubmit = (event: React.FormEvent) => {
-    event.preventDefault();
+  const handleSubmitCredentials = (event: React.FormEvent) => {
+    event.preventDefault(); // Prevents the form from submitting and reloading the page
+    setIsSubmittingLink(true); // Set the state to disable input and button
+
     try {
-      startTransition(async () => {
-        await handleEmailSignIn(formData.email);
+      startTransitionLink(async () => {
+        await handleUsernameSignIn(formData);
+        setIsSubmittingLink(false); // Re-enable input and button after submission completes
       });
     } catch (error) {
       console.error(error);
+      setIsSubmittingLink(false); // Ensure to re-enable on error
     }
   };
 
@@ -46,14 +50,16 @@ export default function SignInPage() {
         <h2 className="text-2xl font-bold mb-4 text-center text-black">Sign In</h2>
 
         {/* Standard Sign In Form */}
-        <form onSubmit={handleSubmit} className="space-y-4">
+        <form
+          onSubmit={handleSubmitCredentials}
+          className="space-y-4">
           <div>
-            <label htmlFor="email" className="block text-sm font-medium text-gray-700">Email</label>
+            <label htmlFor="username" className="block text-sm font-medium text-gray-700">Username</label>
             <input
-              type="email"
-              id="email"
-              value={formData.email}
-              onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+              type="text"
+              id="username"
+              value={formData.username}
+              onChange={(e) => setFormData({ ...formData, username: e.target.value })}
               className="text-black mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2"
               required
             />
@@ -69,7 +75,11 @@ export default function SignInPage() {
               required
             />
           </div>
-          <button type="submit" className="w-full bg-blue-500 text-white p-2 rounded-md hover:bg-blue-600">
+          <button
+            type="submit"
+            className={`w-full p-2 rounded-md ${isSubmittingLink ? 'bg-gray-500' : 'bg-blue-500 hover:bg-blue-600'} text-white`}
+            disabled={isSubmittingLink} // Disable button when form is submitting
+            >
             Sign In
           </button>
         </form>
@@ -82,7 +92,9 @@ export default function SignInPage() {
         </div>
 
         {/* Email Link Sign In Form */}
-        <form onSubmit={handleSubmitEmail} className="my-2 space-y-4">
+        <form 
+          onSubmit={handleSubmitEmail}
+          className="my-2 space-y-4">
           <div>
             <label htmlFor="email-link" className="block text-sm font-medium text-gray-700">Email</label>
             <input

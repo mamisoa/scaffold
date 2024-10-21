@@ -4,7 +4,7 @@ import { prisma } from "@/lib/prisma"
 import Google from "next-auth/providers/google"
 import Nodemailer from "next-auth/providers/nodemailer"
 import Credentials from "next-auth/providers/credentials"
-import bcrypt from 'bcrypt'
+import { compare, genSalt, hash } from "bcrypt";
 
 export const { handlers, signIn, signOut, auth } = NextAuth({
     // Use the NEXTAUTH_URL environment variable
@@ -66,17 +66,17 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
                 // Find user by username in the usersLocal table
                 const user = await prisma.usersLocal.findUnique({
                   where: { username: credentials.username as string }
-                });
+                }); // OK
        
                 // If user is not found or doesn't have a password, return null
                 if (!user || !user.password) {
                   console.log("User not found or password not set");
                   return null;
-                }
+                } //
        
                 // Compare the provided password with the stored hash
                 const isPasswordValid = bcrypt.compare(credentials.password as string, user.password);
-       
+                // const isPasswordValid = true;
                 // If password is invalid, return null
                 if (!isPasswordValid) {
                   console.log("Invalid password");
@@ -84,6 +84,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
                 }
        
                 // If everything is valid, return the user object
+                console.log("Username and password are valid.")
                 return {
                   id: user.id.toString(),
                   username: user.username,
@@ -126,6 +127,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
 });
 
 // Helper function to hash password (use this when creating a new user)
-export async function hashPassword(password: string): Promise<string> {
-    return bcrypt.hash(password, 10);
-}
+// async function hashAndSaltPassword(password: string, saltRounds = 10) {
+//   const salt = await genSalt(saltRounds);
+//   return hash(password, salt);
+// }
