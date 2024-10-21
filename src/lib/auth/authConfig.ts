@@ -1,4 +1,4 @@
-import NextAuth, { User } from "next-auth"
+import NextAuth, { CredentialsSignin, User } from "next-auth"
 import { PrismaAdapter } from "@auth/prisma-adapter"
 import { prisma } from "@/lib/prisma"
 import Google from "next-auth/providers/google"
@@ -25,6 +25,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
     // Custom pages
     pages: {
         signIn: "/auth/sign-in",
+        error: "/auth/error",
     },
 
     // Authentication providers
@@ -62,7 +63,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
                 return null;
               }
        
-              try {
+              
                 // Find user by username in the usersLocal table
                 const user = await prisma.usersLocal.findUnique({
                   where: { username: credentials.username as string }
@@ -71,16 +72,20 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
                 // If user is not found or doesn't have a password, return null
                 if (!user || !user.password) {
                   console.log("User not found or password not set");
-                  return null;
+                  throw new CredentialsSignin('Please provide both email and password')
+                  // return null;
                 } //
        
                 // Compare the provided password with the stored hash
-                const isPasswordValid = bcrypt.compare(credentials.password as string, user.password);
-                // const isPasswordValid = true;
+                console.log('credentials.password: ', await hash(credentials.password as string,10));
+                console.log('user.password: ', user.password);
+                const isPasswordValid = await compare(credentials.password as string, user.password);
+                console.log("Validation: ", isPasswordValid);
+                // const isPasswordValid = false;
                 // If password is invalid, return null
                 if (!isPasswordValid) {
-                  console.log("Invalid password");
-                  return null;
+                  throw new CredentialsSignin('Please provide valid email and password')
+                  // return null;
                 }
        
                 // If everything is valid, return the user object
@@ -91,10 +96,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
                   email: user.email,
                   name: `${user.firstName} ${user.lastName}`,
                 };
-              } catch (error) {
-                console.error("Error in authorize function:", error);
-                return null;
-              }
+              
             },
         }),
     ],

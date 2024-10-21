@@ -10,3 +10,13 @@ export async function checkIsAuthenticated() {
         return false;
     }
 }
+
+export async function getSession() {
+    const session = await auth();
+    console.log("Session:", session);
+    if (session) {
+        return session;
+    } else {
+        return false;
+    }
+}
